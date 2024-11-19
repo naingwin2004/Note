@@ -34,12 +34,23 @@ const NoteDetails = () => {
 			</div>
 		);
 	}
-
+	if (error) {
+		return (
+			<div className='flex items-center mt-[50%] max-w-sm justify-center mx-auto'>
+				<p className='mx-3'>{error}</p>
+				<p
+					className='border border-java-300 px-5 py-2 mx-3 rounded hover:bg-java-200'
+					onClick={() => navigate("/")}>
+					Go back home
+				</p>
+			</div>
+		);
+	}
 	return (
 		<div className='flex justify-center items-center mt-5 flex-col gap-3'>
-			<p className='self-end border border-java-300 px-5 py-2 mx-3 rounded hover:bg-java-200'
-			onClick={()=>navigate(-1)}
-			>
+			<p
+				className='self-end border border-java-300 px-5 py-2 mx-3 rounded hover:bg-java-200'
+				onClick={() => navigate(-1)}>
 				<CornerUpLeft className='w-5 h-5' />
 			</p>
 			<div className='max-w-lg  p-6 rounded-lg shadow-md mx-3 border border-java-300 bg-white'>

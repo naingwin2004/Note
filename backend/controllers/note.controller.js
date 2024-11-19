@@ -57,6 +57,12 @@ export const detailsNote = async (req, res, next) => {
 
 export const deleteNote = async (req, res, next) => {
 	const { id } = req.params;
+	
+	//Mongodb ObjectId check
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		return res.status(400).json({ message: "Invalid Note ID" });
+	}
+	
 	try {
 		const note = await Note.findByIdAndDelete(id);
 		if (!note) {
@@ -78,6 +84,12 @@ export const oldNoteData = async (req, res, next) => {
 			.status(400)
 			.json({ message: "validation fail", errors: errors.array() });
 	}
+
+	//Mongodb ObjectId check
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		return res.status(400).json({ message: "Invalid Note ID" });
+	}
+
 	try {
 		const note = await Note.findById(id);
 		if (!note) {
