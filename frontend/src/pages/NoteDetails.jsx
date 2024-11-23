@@ -47,7 +47,7 @@ const NoteDetails = () => {
 		);
 	}
 	return (
-		<div className='flex justify-center items-center mt-5 flex-col gap-3'>
+		<div className='flex justify-center items-center my-10 flex-col gap-3'>
 			<p
 				className='self-end border border-java-300 px-5 py-2 mx-3 rounded hover:bg-java-200'
 				onClick={() => navigate(-1)}>
@@ -58,8 +58,11 @@ const NoteDetails = () => {
 					{note.title}
 				</h2>
 				<p className='text-java-600 mb-4'>{note.description}</p>
+				{note.imageUrl && (
+					<img src={`http://localhost:8000/${note.imageUrl}`} />
+				)}
 				<div className='flex justify-end space-x-4'>
-					<Link to={"/edit/1"}>
+					<Link to={`/edit/${note._id}`}>
 						<NotebookPen className='w-6 h-6 cursor-pointer text-java-500 hover:text-java-700' />
 					</Link>
 					<Trash2

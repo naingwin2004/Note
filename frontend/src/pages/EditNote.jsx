@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,9 @@ import { useNoteStore } from "../store/store.js";
 const EditNote = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [preview, setPreview] = useState(null);
+	const [oldImg, setOldImg] = useState(null);
+	const imageRef = useRef();
 	const { oldNoteData, isLoading, error, oldFormData, updateNote } =
 		useNoteStore();
 
@@ -32,12 +35,28 @@ const EditNote = () => {
 		formState: { errors },
 	} = useForm({ resolver: zodResolver(noteSchema) });
 
+	const handleImageChange = (e) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setPreview(URL.createObjectURL(file));
+		} else {
+			setPreview(null);
+		}
+	};
+	const handleImageClear = () => {
+		if (imageRef.current) {
+			imageRef.current.value = null;
+		}
+		setPreview(null);
+	};
+
 	const fetchData = async () => {
 		try {
 			const response = await oldNoteData(id);
 			if (response) {
 				setValue("title", response.title);
 				setValue("description", response.description);
+				setOldImg(response.imageUrl);
 			}
 		} catch (error) {
 			console.log("Somthing went wrong");
@@ -49,14 +68,19 @@ const EditNote = () => {
 	}, [oldNoteData]);
 
 	const handleEdit = async (data) => {
+		const formData = new FormData();
+		formData.append("title", data.title);
+		formData.append("description", data.description);
+		formData.append("image", imageRef.current.files[0]);
+
 		try {
-			const response = await updateNote(id, data.title, data.description);
+			const response = await updateNote(id, formData);
 			if (response && response.message) {
 				toast.success(response.message);
 				navigate("/");
 			}
-		} catch (error) {
-			toast.error(message);
+		} catch (err) {
+			toast.error(err.response.data.message);
 		}
 	};
 
@@ -130,6 +154,62 @@ const EditNote = () => {
 						</p>
 					)}
 				</div>
+				{/* Image Input */}
+				<div>
+					<div className=' flex justify-between font-medium items-center'>
+						Upload Image
+						<p className='font-light text-xs'>opational</p>
+					</div>
+					{preview && (
+						<div
+							className='flex justify-end text-java-500'
+							onClick={handleImageClear}>
+							Clear
+						</div>
+					)}
+
+					<input
+						type='file'
+						id='image'
+						accept='image/*'
+						ref={imageRef}
+						onChange={(e) => {
+							handleImageChange(e);
+						}}
+						className='border p-2 mt-1 block w-full'
+					/>
+					{errors.image && (
+						<p className='text-red-500 text-sm mt-1'>
+							{errors.image.message}
+						</p>
+					)}
+				</div>
+				{/* Image Preview */}
+				{oldImg && !preview && (
+					<div className='max-w-xl'>
+						<p className='font-medium text-center'>
+							Image Preview:
+						</p>
+						<img
+							src={`http://localhost:8000/${oldImg}`}
+							alt='Preview'
+							className='h-96 object-cover shadow-md mt-2'
+						/>
+					</div>
+				)}
+				{/* Image Preview */}
+				{preview && (
+					<div className='max-w-xl'>
+						<p className='font-medium text-center'>
+							Image Preview:
+						</p>
+						<img
+							src={preview}
+							alt='Preview'
+							className='h-96 object-cover shadow-md mt-2'
+						/>
+					</div>
+				)}
 				<div className='w-full flex justify-end'>
 					<button
 						type='submit'

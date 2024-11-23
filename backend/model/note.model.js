@@ -16,6 +16,7 @@ const noteSchema = new mongoose.Schema(
 			type: String,
 			default: "Anonymous",
 		},
+		imageUrl:String
 	},
 	{ timestamps: true },
 );

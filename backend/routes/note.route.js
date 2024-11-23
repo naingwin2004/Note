@@ -1,6 +1,6 @@
 import express from "express";
-import { body } from "express-validator";
 
+import upload from "../utils/multerConfig.js";
 import {
 	createNote,
 	getNotes,
@@ -14,28 +14,13 @@ const router = express.Router();
 
 router.get("/notes", getNotes);
 
-router.post(
-	"/create",
-	[
-		body("title")
-			.notEmpty()
-			.withMessage("Title is required")
-			.isLength({ max: 30 })
-			.withMessage("Title must be 30 characters."),
-		body("description")
-			.notEmpty()
-			.withMessage("Description is required")
-			.isLength({ min: 10 })
-			.withMessage("Description must be at least 10 characters long."),
-	],
-	createNote,
-);
+router.post("/create", upload.single("image"), createNote);
 
 router.get("/details/:id", detailsNote);
 
 router.delete("/delete/:id", deleteNote);
 
 router.get("/edit/:id", oldNoteData);
-router.post("/edit/:id", updateNote);
+router.post("/edit/:id",upload.single("image"), updateNote);
 
 export default router;

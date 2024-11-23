@@ -24,14 +24,14 @@ export const useNoteStore = create((set) => ({
 			throw error;
 		}
 	},
-	
-	createNote: async (title, description) => {
+
+	createNote: async (formData) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post("http://localhost:8000/create", {
-				title,
-				description,
-			});
+			const response = await axios.post(
+				"http://localhost:8000/create",
+				formData,
+			);
 			set({
 				message: response.data.message,
 				isLoading: false,
@@ -105,12 +105,13 @@ export const useNoteStore = create((set) => ({
 		}
 	},
 
-	updateNote: async (id, title, description) => {
+	updateNote: async (id, formData) => {
 		set({ message: null, isLoading: true, error: null });
+
 		try {
 			const response = await axios.post(
 				`http://localhost:8000/edit/${id}`,
-				{ title, description },
+				formData,
 			);
 			set((state) => ({
 				notes: state.notes.map((note) =>
