@@ -7,6 +7,7 @@ import multer from "multer";
 
 import { connectDB } from "./db/connectDB.js";
 import noteRoute from "./routes/note.route.js";
+import authRoute from "./routes/auth.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,7 @@ app.use(cors()); //Enable cors
 app.use("/backend/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(noteRoute);
+app.use(authRoute);
 
 app.listen(PORT, () => {
 	connectDB();

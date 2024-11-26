@@ -1,8 +1,8 @@
-import fs from "fs";
+import fs from "fs/promises";
 
-export const unlink = (filePath) => {
-	fs.unlink(filePath, (err) => {
-		if (err) throw err;
-		console.log("unlink file ok !");
-	});
+export const unlink = async (path) => {
+	if (!path) {
+		throw new Error('The "path" argument is required');
+	}
+	await fs.unlink(path);
 };

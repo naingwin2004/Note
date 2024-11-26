@@ -1,4 +1,5 @@
 import express from "express";
+import { authenticate } from "../middleware/authenticate.js";
 
 import upload from "../utils/multerConfig.js";
 import {
@@ -14,13 +15,13 @@ const router = express.Router();
 
 router.get("/notes", getNotes);
 
-router.post("/create", upload.single("image"), createNote);
+router.post("/create",authenticate, upload.single("image"), createNote);
 
 router.get("/details/:id", detailsNote);
 
-router.delete("/delete/:id", deleteNote);
+router.delete("/delete/:id",authenticate, deleteNote);
 
-router.get("/edit/:id", oldNoteData);
-router.post("/edit/:id",upload.single("image"), updateNote);
+router.get("/edit/:id",authenticate, oldNoteData);
+router.post("/edit/:id",authenticate, upload.single("image"), updateNote);
 
 export default router;

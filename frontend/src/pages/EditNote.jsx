@@ -22,7 +22,7 @@ const EditNote = () => {
 		title: z
 			.string()
 			.min(1, { message: "Please enter a title." })
-			.max(10, { message: "Title should be at most 10 characters." }),
+			.max(30, { message: "Title should be at most 30 characters." }),
 		description: z.string().min(10, {
 			message: "Please enter a description, at least 10 characters.",
 		}),
@@ -59,7 +59,7 @@ const EditNote = () => {
 				setOldImg(response.imageUrl);
 			}
 		} catch (error) {
-			console.log("Somthing went wrong");
+			console.log("Somthing went wrong ",error);
 		}
 	};
 

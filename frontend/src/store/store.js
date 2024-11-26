@@ -1,5 +1,6 @@
 import axios from "axios";
 import { create } from "zustand";
+import { useAuthStore } from "./auth.store.js";
 
 export const useNoteStore = create((set) => ({
 	notes: [],
@@ -8,13 +9,24 @@ export const useNoteStore = create((set) => ({
 	error: null,
 	message: null,
 	oldFormData: {},
+	totalPage: 0,
+	currentPage: 1,
 
-	fetchNotes: async () => {
+	setCurrentPage: (page) => set({ currentPage: page }),
+
+	fetchNotes: async (page = 1) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.get("http://localhost:8000/notes");
-			set({ notes: response.data, isLoading: false, error: null });
-			return response.data;
+			const response = await axios.get(
+				`${import.meta.env.VITE_API_URL}/notes?page=${page}`,
+			);
+			set({
+				notes: response.data.notes,
+				isLoading: false,
+				error: null,
+				totalPage: response.data.totalPage,
+				currentPage: page, // update currentPage here
+			});
 		} catch (error) {
 			console.error("Error fetching notes:", error);
 			set({
@@ -28,9 +40,15 @@ export const useNoteStore = create((set) => ({
 	createNote: async (formData) => {
 		set({ isLoading: true, error: null });
 		try {
+			const token = useAuthStore.getState().token;
 			const response = await axios.post(
-				"http://localhost:8000/create",
+				`${import.meta.env.VITE_API_URL}/create`,
 				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
 			);
 			set({
 				message: response.data.message,
@@ -51,7 +69,7 @@ export const useNoteStore = create((set) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const response = await axios.get(
-				`http://localhost:8000/details/${id}`,
+				`${import.meta.env.VITE_API_URL}/details/${id}`,
 			);
 			set({ note: response.data, isLoading: false });
 			return response.data;
@@ -68,8 +86,14 @@ export const useNoteStore = create((set) => ({
 	deleteNote: async (id) => {
 		set({ error: null, message: null });
 		try {
+			const token = useAuthStore.getState().token;
 			const response = await axios.delete(
-				`http://localhost:8000/delete/${id}`,
+				`${import.meta.env.VITE_API_URL}/delete/${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
 			);
 			set((state) => ({
 				notes: state.notes.filter((note) => note._id !== id),
@@ -89,8 +113,14 @@ export const useNoteStore = create((set) => ({
 	oldNoteData: async (id) => {
 		set({ oldFormData: {}, isLoading: true, error: null });
 		try {
+			const token = useAuthStore.getState().token;
 			const response = await axios.get(
-				`http://localhost:8000/edit/${id}`,
+				`${import.meta.env.VITE_API_URL}/edit/${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
 			);
 			set({ oldFormData: response.data, isLoading: false });
 
@@ -109,13 +139,19 @@ export const useNoteStore = create((set) => ({
 		set({ message: null, isLoading: true, error: null });
 
 		try {
+			const token = useAuthStore.getState().token;
 			const response = await axios.post(
-				`http://localhost:8000/edit/${id}`,
+				`${import.meta.env.VITE_API_URL}/edit/${id}`,
 				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
 			);
 			set((state) => ({
 				notes: state.notes.map((note) =>
-					note.id === id ? { ...note, ...response.data.note } : note,
+					note.id === id ? response.data.note : note,
 				),
 				message: response.data.message,
 				isLoading: false,

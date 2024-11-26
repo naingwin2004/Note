@@ -61,6 +61,7 @@ const CreateNote = () => {
 		}
 	};
 
+
 	return (
 		<motion.div
 			initial={{ y: 20, scale: 0.8, opacity: 0 }}

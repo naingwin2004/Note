@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Masonry from "react-masonry-css";
@@ -8,11 +7,18 @@ import { Card } from "../components/index.js";
 import { useNoteStore } from "../store/store.js";
 
 const Notes = () => {
-	const { notes, error, isLoading, fetchNotes } = useNoteStore();
+	const {
+		notes,
+		totalPage,
+		currentPage,
+		isLoading,
+		fetchNotes,
+		setCurrentPage,
+	} = useNoteStore();
 
 	useEffect(() => {
-		fetchNotes();
-	}, [fetchNotes]);
+		fetchNotes(currentPage); // Fetch based on currentPage
+	}, [fetchNotes, currentPage]);
 
 	const breakpointColumnsObj = {
 		default: 4,
@@ -41,17 +47,42 @@ const Notes = () => {
 					</Link>
 				</div>
 			) : (
-				<Masonry
-					breakpointCols={breakpointColumnsObj}
-					className='my-masonry-grid'
-					columnClassName='my-masonry-grid_column'>
-					{notes.map((note) => (
-						<Card
-							key={note._id}
-							note={note}
-						/>
-					))}
-				</Masonry>
+				<>
+					<Masonry
+						breakpointCols={breakpointColumnsObj}
+						className='my-masonry-grid'
+						columnClassName='my-masonry-grid_column'>
+						{notes.map((note) => (
+							<Card
+								key={note._id}
+								note={note}
+							/>
+						))}
+					</Masonry>
+					<div className='flex justify-center items-center mt-4 gap-2'>
+						{/* Previous Button */}
+						{currentPage > 1 && (
+							<button
+								className='bg-gray-300 p-2 rounded disabled:opacity-50'
+								onClick={() => setCurrentPage(currentPage - 1)}>
+								Previous
+							</button>
+						)}
+
+						<p>
+							Page {currentPage} of {totalPage}
+						</p>
+
+						{/* Next Button */}
+						{currentPage < totalPage && (
+							<button
+								className='bg-gray-300 p-2 rounded disabled:opacity-50'
+								onClick={() => setCurrentPage(currentPage + 1)}>
+								Next
+							</button>
+						)}
+					</div>
+				</>
 			)}
 		</div>
 	);

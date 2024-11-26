@@ -13,12 +13,13 @@ const noteSchema = new mongoose.Schema(
 			minLength: 10,
 		},
 		user: {
-			type: String,
-			default: "Anonymous",
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
 		},
-		imageUrl:String
+		imageUrl: String,
 	},
 	{ timestamps: true },
 );
 
-export const Note = mongoose.model("Note",noteSchema)
+export const Note = mongoose.model("Note", noteSchema);

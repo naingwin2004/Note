@@ -1,13 +1,16 @@
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { formatISO9075 } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { NotebookPen, Trash2, ScanEye } from "lucide-react";
 
 import { useNoteStore } from "../store/store.js";
+import { useAuthStore } from "../store/auth.store.js";
 
 const Card = ({ note }) => {
 	const { deleteNote } = useNoteStore();
+	const { user } = useAuthStore();
 
 	const handleDelete = async () => {
 		try {
@@ -16,7 +19,7 @@ const Card = ({ note }) => {
 				toast.success(response.message);
 			}
 		} catch (error) {
-			toast.error("Failed to delete the note.");
+			toast.error(error.response.data.message);
 		}
 	};
 
@@ -33,14 +36,24 @@ const Card = ({ note }) => {
 					{note.title}
 				</h2>
 				<p className='text-java-600 mb-4'>{note.description}</p>
+				<p>
+					{formatISO9075(new Date(note.createdAt), {
+						representation: "date",
+					})}
+				</p>
 				<div className='flex justify-end space-x-4'>
-					<Link to={`/edit/${note._id}`}>
-						<NotebookPen className='w-6 h-6 cursor-pointer text-java-500 hover:text-java-700' />
-					</Link>
-					<Trash2
-						className='w-6 h-6 cursor-pointer text-red-400 hover:text-red-700'
-						onClick={handleDelete}
-					/>
+					{user && note.user && note.user === user._id && (
+						<>
+							<Link to={`/edit/${note._id}`}>
+								<NotebookPen className='w-6 h-6 cursor-pointer text-java-500 hover:text-java-700' />
+							</Link>
+							<Trash2
+								className='w-6 h-6 cursor-pointer text-red-400 hover:text-red-700'
+								onClick={handleDelete}
+							/>
+						</>
+					)}
+
 					<Link to={`/details/${note._id}`}>
 						<ScanEye className='w-6 h-6 cursor-pointer hover:text-java-700' />
 					</Link>

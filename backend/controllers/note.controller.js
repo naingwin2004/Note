@@ -1,10 +1,23 @@
-import { Note } from "../model/note.model.js";
 import mongoose from "mongoose";
+
 import { unlink } from "../utils/unlink.js";
+import { Note } from "../model/note.model.js";
+
 export const getNotes = async (req, res, next) => {
+	const pageNumber = +req.query.page || 1;
+	const note_par_page = 10;
+	const skip = (pageNumber - 1) * note_par_page;
 	try {
-		const notes = await Note.find().sort({ createdAt: -1 });
-		return res.status(200).json(notes);
+		const totalNote = await Note.find().countDocuments();
+		const notes = await Note.find()
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(note_par_page);
+		return res.status(200).json({
+			notes,
+			totalNote,
+			totalPage: Math.ceil(totalNote / note_par_page),
+		});
 	} catch (error) {
 		console.log("Error in getNotes : ", error);
 		return res.status(500).json({ message: error.message });
@@ -30,6 +43,7 @@ export const createNote = async (req, res, next) => {
 			title,
 			description,
 			imageUrl: image ? image.path : undefined,
+			user: req.user.userId,
 		});
 		await note.save();
 
@@ -69,11 +83,18 @@ export const deleteNote = async (req, res, next) => {
 	}
 
 	try {
-		const note = await Note.findByIdAndDelete(id);
+		const note = await Note.findById(id);
 		if (!note) {
 			return res.status(404).json({ message: "Note not found" });
 		}
-		unlink(note.imageUrl)
+
+		if (note.user.toString() !== req.user.userId) {
+			return res.status(400).json({ message: "You aren't authorized" });
+		}
+		await Note.findByIdAndDelete(id);
+		if (note.imageUrl) {
+			unlink(note.imageUrl);
+		}
 		return res.status(202).json({ message: "Note delete successfully" });
 	} catch (error) {
 		console.log("Error in deleteNote: ", error);
@@ -94,6 +115,9 @@ export const oldNoteData = async (req, res, next) => {
 		if (!note) {
 			return res.status(404).json({ message: "Note not found" });
 		}
+		if (note.user.toString() !== req.user.userId) {
+			return res.status(400).json({ message: "You aren't authorized" });
+		}
 		return res.status(200).json(note);
 	} catch (error) {
 		console.log("Error in oldNoteData: ", error);
@@ -105,7 +129,7 @@ export const updateNote = async (req, res, next) => {
 	const { id } = req.params;
 	const { title, description } = req.body;
 	const image = req.file;
-	
+
 	if (!title && !description) {
 		return res
 			.status(422)
@@ -127,6 +151,9 @@ export const updateNote = async (req, res, next) => {
 
 		if (!note) {
 			return res.status(404).json({ message: "Note not found" });
+		}
+		if (note.user.toString() !== req.user.userId) {
+			return res.status(400).json({ message: "You aren't authorized" });
 		}
 		note.title = title;
 		note.description = description;
