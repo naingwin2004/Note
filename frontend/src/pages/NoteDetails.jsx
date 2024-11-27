@@ -13,7 +13,6 @@ const NoteDetails = () => {
 	const navigate = useNavigate();
 	const { note, isLoading, error, detailsNote, deleteNote } = useNoteStore();
 	const { user } = useAuthStore();
-
 	const handleDelete = async () => {
 		try {
 			const response = await deleteNote(note._id);
@@ -57,7 +56,7 @@ const NoteDetails = () => {
 				<p>{formattedDate}</p>
 				{note.imageUrl && (
 					<img
-						src={`http://localhost:8000/${note.imageUrl}`}
+						src={`${import.meta.env.VITE_API_URL}/${note.imageUrl}`}
 						alt='Note image'
 						className='mx-auto max-w-full max-h-96 object-cover my-2'
 					/>
