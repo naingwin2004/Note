@@ -59,7 +59,7 @@ const EditNote = () => {
 				setOldImg(response.imageUrl);
 			}
 		} catch (error) {
-			console.log("Somthing went wrong ",error);
+			console.log("Somthing went wrong ", error);
 		}
 	};
 
@@ -191,7 +191,7 @@ const EditNote = () => {
 							Image Preview:
 						</p>
 						<img
-							src={`http://localhost:8000/${oldImg}`}
+							src={`${import.meta.env.VITE_API_URL}/${oldImg}`}
 							alt='Preview'
 							className='h-96 object-cover shadow-md mt-2'
 						/>
