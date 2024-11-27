@@ -1,5 +1,6 @@
 import { useAuthStore } from "../store/auth.store.js";
 import { motion } from "framer-motion";
+import { formatISO9075 } from "date-fns";
 
 const Profile = () => {
 	const { user } = useAuthStore();
@@ -30,9 +31,9 @@ const Profile = () => {
 							</div>
 						</div>
 						<p className='text-gray-600 text-sm'>
-							Last Login:{" "}
+							createdAt :{" "}
 							<span className='font-medium'>
-								{user.createdAt}
+								{formatISO9075(new Date(user.createdAt))}
 							</span>
 						</p>
 					</div>
